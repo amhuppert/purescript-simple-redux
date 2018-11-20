@@ -4,6 +4,7 @@ module Redux
        , subscribe
        , dispatch
        , createStore
+       , createStore'
        , getState
        ) where
 
@@ -28,6 +29,7 @@ newtype ReduxStore state action =
              , subscribers :: Ref (Map Int (state -> Effect Unit))
              , nextSubId :: Ref Int
              , dispatchQueue :: MQueue (Effect Unit)
+             , preDispatchHook :: action -> Effect Unit
              }
 
 subscribe :: forall s a. ReduxStore s a -> (s -> Effect Unit) -> Effect (Effect Unit)
@@ -42,6 +44,7 @@ subscribe (ReduxStore store) callback = do
 
 dispatch :: forall s a. ReduxStore s a -> a -> Effect Unit
 dispatch (ReduxStore store) action = do
+  store.preDispatchHook action
   newState <- Ref.modify (flip store.reducer action) store.state
   subscribers <- Ref.read store.subscribers
   let callbacks = Array.fromFoldable $
@@ -59,8 +62,8 @@ dispatch (ReduxStore store) action = do
     loop = pure (Loop unit)
     done = pure (Done unit)
 
-createStore :: forall s a. Reducer s a -> s -> Effect (ReduxStore s a)
-createStore reducer initialState = do
+createStore' :: forall s a. (a -> Effect Unit) -> Reducer s a -> s -> Effect (ReduxStore s a)
+createStore' preDispatchHook reducer initialState = do
   stateRef <- Ref.new initialState
   subscribers <- Ref.new Map.empty
   dispatchQueue <- MQ.newQueue
@@ -72,7 +75,11 @@ createStore reducer initialState = do
     , subscribers
     , nextSubId
     , dispatchQueue
+    , preDispatchHook
     }
+
+createStore :: forall s a. Reducer s a -> s -> Effect (ReduxStore s a)
+createStore = createStore' (const (pure unit))
 
 getState :: forall s a. ReduxStore s a -> Effect s
 getState (ReduxStore store) = Ref.read store.state

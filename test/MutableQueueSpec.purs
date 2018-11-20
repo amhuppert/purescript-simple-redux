@@ -2,9 +2,8 @@ module MutableQueueSpec where
 
 import Prelude
 
-import Control.Monad.Gen (chooseInt, sized)
+import Control.Monad.Gen (sized)
 import Control.Monad.Rec.Class (Step(..), tailRecM)
-import Data.Array (intercalate)
 import Data.Array as Array
 import Data.Array.NonEmpty as NEA
 import Data.Compactable (compact)
@@ -12,18 +11,16 @@ import Data.Foldable (for_)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.NonEmpty (NonEmpty(..), tail)
+import Data.NonEmpty (NonEmpty(..))
 import Data.Semigroup.Foldable (intercalateMap)
 import Data.Unfoldable (replicateA)
-import Debug.Trace as Debug
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Effect.Class.Console as Console
 import Effect.Unsafe (unsafePerformEffect)
 import MutableQueue (MQueue)
 import MutableQueue as MQ
-import Test.QuickCheck (class Arbitrary, Result(..), arbitrary, quickCheck, quickCheck', quickCheckGen, quickCheckGen', (===))
-import Test.QuickCheck.Gen (Gen, oneOf, resize, vectorOf)
+import Test.QuickCheck (class Arbitrary, Result(..), arbitrary, quickCheck, quickCheckGen', (===))
+import Test.QuickCheck.Gen (oneOf, resize, vectorOf)
 import Test.Spec (Spec, describe, it)
 
 spec :: Spec Unit
