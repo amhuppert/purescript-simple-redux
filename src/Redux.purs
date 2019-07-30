@@ -1,3 +1,4 @@
+-- | Simple Redux-like state management.
 module Redux
        ( Reducer(..)
        , ReduxStore
@@ -47,6 +48,11 @@ dispatch (ReduxStore store) action = do
   where
     notifySubscribers subs = traverse_ identity $ Map.values subs
 
+-- | Create a new ReduxStore by specifying the reducer function
+-- | and an initial state
+-- |
+-- | The first argument is an effectful action that is run prior to every dispatch.
+-- | It can be used, for example, to log every action.
 createStore' :: forall s a. (s -> a -> Effect Unit) -> Reducer s a -> s -> Effect (ReduxStore s a)
 createStore' preDispatchHook reducer initialState = do
   stateRef <- Ref.new initialState
