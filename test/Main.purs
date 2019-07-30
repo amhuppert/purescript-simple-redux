@@ -8,7 +8,6 @@ import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Ref as Ref
 import Effect.Unsafe (unsafePerformEffect)
-import MutableQueueSpec as MutableQueueSpec
 import Redux as Redux
 import Test.QuickCheck (quickCheck, (==?))
 import Test.Spec (describe, it)
@@ -18,7 +17,6 @@ import Test.Spec.Runner (run)
 
 main :: Effect Unit
 main = run [consoleReporter] do
-  MutableQueueSpec.spec
   describe "Reducer" do
     it "Dispatching multiple actions is the same as folding over the same actions with the reducer" do
       liftEffect $ quickCheck \(initialState :: Int) (actions :: Array Int) ->
